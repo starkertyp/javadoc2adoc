@@ -1,6 +1,6 @@
 use std::{
-    env, fs,
-    path::{self, Path, PathBuf},
+    env,
+    path::{Path, PathBuf},
 };
 
 use anyhow::anyhow;
@@ -16,8 +16,6 @@ use smol_macros::main;
 use tracing::{debug, info, trace};
 
 mod classdoc;
-
-const TESTCLASS: &str = include_str!("test.java");
 
 async fn doc_from_file(path: &PathBuf) -> anyhow::Result<Option<Class>> {
     let content = read_to_string(path).await?;

@@ -1,7 +1,7 @@
-use std::{fmt, str::FromStr};
+use std::fmt;
 
-use anyhow::{anyhow, bail};
-use tracing::{debug, instrument, trace, warn, Instrument};
+use anyhow::anyhow;
+use tracing::{debug, instrument, trace, warn};
 use tree_sitter::{Node, Parser, Tree, TreeCursor};
 
 #[derive(Debug)]
@@ -34,8 +34,8 @@ impl Field {
         let node_type = node
             .child_by_field_name("type")
             .ok_or_else(|| anyhow!("Expected a field to have a type"))?;
-        let declarator = get_string_of_node(&declarator, &sourcecode);
-        let thing_type = get_string_of_node(&node_type, &sourcecode);
+        let declarator = get_string_of_node(&declarator, sourcecode);
+        let thing_type = get_string_of_node(&node_type, sourcecode);
         let name = format!("{thing_type} {declarator}");
         Ok(Self {
             name: name.to_string(),
@@ -70,9 +70,9 @@ impl Method {
             .child_by_field_name("parameters")
             .ok_or_else(|| anyhow!("Expected a method to have a parameter declaration"))?;
 
-        let name = get_string_of_node(&name, &sourcecode);
-        let node_type = get_string_of_node(&node_type, &sourcecode);
-        let params = get_string_of_node(&params, &sourcecode);
+        let name = get_string_of_node(&name, sourcecode);
+        let node_type = get_string_of_node(&node_type, sourcecode);
+        let params = get_string_of_node(&params, sourcecode);
         let name = format!("{node_type} {name} {params}");
 
         Ok(Self {
@@ -114,8 +114,8 @@ impl Constructor {
             .child_by_field_name("parameters")
             .ok_or_else(|| anyhow!("Expected a constructor to have a parameter declaration"))?;
 
-        let name = get_string_of_node(&name, &sourcecode);
-        let params = get_string_of_node(&params, &sourcecode);
+        let name = get_string_of_node(&name, sourcecode);
+        let params = get_string_of_node(&params, sourcecode);
         let name = format!("{name} {params}");
 
         Ok(Self {
@@ -153,28 +153,28 @@ impl fmt::Display for Class {
         write!(f, "={} {}", prefix_hashes, self.name)?;
         write!(f, "{}", self.class_comment)?;
 
-        if self.constructors.len() > 0 {
+        if !self.constructors.is_empty() {
             writeln!(f, "=={} Konstruktoren", prefix_hashes)?
         }
         for constructor in &self.constructors {
             write!(f, "{}", constructor)?;
         }
 
-        if self.fields.len() > 0 {
+        if !self.fields.is_empty() {
             writeln!(f, "=={} Felder", prefix_hashes)?
         }
         for field in &self.fields {
             write!(f, "{}", field)?;
         }
 
-        if self.methods.len() > 0 {
+        if !self.methods.is_empty() {
             writeln!(f, "=={} Methoden", prefix_hashes)?
         }
         for method in &self.methods {
             write!(f, "{}", method)?;
         }
 
-        if self.children.len() > 0 {
+        if !self.children.is_empty() {
             writeln!(f, "=={} Subklassen", prefix_hashes)?
         }
         for child in &self.children {
@@ -205,7 +205,7 @@ impl Class {
 
         debug!("Looking for the root class");
         let root_classes = find_classes(&root, &mut cursor);
-        if root_classes.len() == 0 {
+        if root_classes.is_empty() {
             debug!("no class found, returning early");
             return Ok(None);
         }
@@ -216,7 +216,7 @@ impl Class {
             );
             return Ok(None);
         }
-        let root = root_classes.get(0).unwrap();
+        let root = root_classes.first().unwrap();
         trace!("Root class is {root:?}");
         let name = root
             .child_by_field_name("name")
@@ -234,7 +234,7 @@ impl Class {
             .children(&mut cursor)
             .filter(|child| is_javadoc_comment(child, sourcecode))
             .collect();
-        if comments.len() > 0 {
+        if !comments.is_empty() {
             trace!(
                 "Found {} javadoc comments inside the class!",
                 comments.len()
@@ -299,7 +299,7 @@ fn get_class_comment<'a>(
         .children(cursor)
         .filter(|child| is_javadoc_comment(child, sourcecode))
         .collect();
-    if comments.len() > 0 {
+    if !comments.is_empty() {
         debug!("Found at least one javadoc at the root level! Using the first one");
         let class_comment = comments.first().unwrap();
         let class_comment = get_string_of_node(class_comment, sourcecode);
@@ -315,8 +315,8 @@ fn get_class_comment<'a>(
 fn get_string_of_node<'a>(node: &Node<'a>, sourcecode: &'a str) -> &'a str {
     let range = node.range();
     trace!("range of node: {range:?}");
-    let content = &sourcecode[range.start_byte..range.end_byte];
-    content
+    
+    (&sourcecode[range.start_byte..range.end_byte]) as _
 }
 
 #[instrument(skip_all)]
@@ -375,12 +375,12 @@ fn javadoc_to_adoc(source: &str) -> String {
                     let head = &line[..first_space];
                     let tail = &line[first_space..];
                     trace!("Head: {head:?} | Tail: {tail:?}");
-                    return format!("{head}::{tail}");
+                    format!("{head}::{tail}")
                 } else {
-                    return line.to_string();
+                    line.to_string()
                 }
             } else {
-                return line.to_string();
+                line.to_string()
             }
         })
         .collect();
