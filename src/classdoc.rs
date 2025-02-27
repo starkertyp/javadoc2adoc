@@ -92,6 +92,49 @@ impl fmt::Display for Method {
     }
 }
 
+#[derive(Debug)]
+struct Constructor {
+    name: String,
+    comment: String,
+    level: u32,
+}
+
+impl Constructor {
+    #[instrument(skip_all)]
+    pub fn from_node<'a>(
+        node: &Node<'a>,
+        sourcecode: &'a str,
+        comment: String,
+        level: u32,
+    ) -> anyhow::Result<Self> {
+        let name = node
+            .child_by_field_name("name")
+            .ok_or_else(|| anyhow!("Expected a constructor to have a name"))?;
+        let params = node
+            .child_by_field_name("parameters")
+            .ok_or_else(|| anyhow!("Expected a constructor to have a parameter declaration"))?;
+
+        let name = get_string_of_node(&name, &sourcecode);
+        let params = get_string_of_node(&params, &sourcecode);
+        let name = format!("{name} {params}");
+
+        Ok(Self {
+            name: name.to_string(),
+            comment,
+            level,
+        })
+    }
+}
+
+impl fmt::Display for Constructor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let level: usize = self.level.try_into().unwrap();
+        let prefix_hashes = vec!["="; level].join("");
+        writeln!(f, "==={} {}", prefix_hashes, self.name)?;
+        writeln!(f, "{}", self.comment)
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct Class {
     level: u32,
@@ -100,6 +143,7 @@ pub struct Class {
     children: Vec<Class>,
     fields: Vec<Field>,
     methods: Vec<Method>,
+    constructors: Vec<Constructor>,
 }
 
 impl fmt::Display for Class {
@@ -108,6 +152,14 @@ impl fmt::Display for Class {
         let prefix_hashes = vec!["="; level].join("");
         write!(f, "={} {}", prefix_hashes, self.name)?;
         write!(f, "{}", self.class_comment)?;
+
+        if self.constructors.len() > 0 {
+            writeln!(f, "=={} Konstruktoren", prefix_hashes)?
+        }
+        for constructor in &self.constructors {
+            write!(f, "{}", constructor)?;
+        }
+
         if self.fields.len() > 0 {
             writeln!(f, "=={} Felder", prefix_hashes)?
         }
@@ -134,7 +186,7 @@ impl fmt::Display for Class {
 
 impl Class {
     #[instrument(skip_all)]
-    pub fn from_sourcecode(sourcecode: &str, level: u32) -> Result<Self, anyhow::Error> {
+    pub fn from_sourcecode(sourcecode: &str, level: u32) -> Result<Option<Self>, anyhow::Error> {
         if level > 0 {
             assert_eq!(level % 2, 0);
         }
@@ -153,7 +205,11 @@ impl Class {
 
         debug!("Looking for the root class");
         let root_classes = find_classes(&root, &mut cursor);
-        if root_classes.len() != 1 {
+        if root_classes.len() == 0 {
+            debug!("no class found, returning early");
+            return Ok(None);
+        }
+        if root_classes.len() > 1 {
             bail!(
                 "Expected exactly one root class, got {}",
                 root_classes.len()
@@ -208,13 +264,20 @@ impl Class {
                     let class_range = thing.range();
                     let sourcecode = &sourcecode[comment_range.start_byte..class_range.end_byte];
                     let class = Class::from_sourcecode(sourcecode, level + 2)?;
-                    classdoc.children.push(class);
+                    if let Some(class) = class {
+                        classdoc.children.push(class);
+                    }
+                }
+                "constructor_declaration" => {
+                    debug!("Found a constructor declaration");
+                    let constructor = Constructor::from_node(&thing, sourcecode, comment, level)?;
+                    classdoc.constructors.push(constructor);
                 }
                 _ => bail!("Got {}, which is unsupported", thing.grammar_name()),
             }
         }
 
-        Ok(classdoc)
+        Ok(Some(classdoc))
     }
 }
 
@@ -307,11 +370,15 @@ fn javadoc_to_adoc(source: &str) -> String {
             if line.starts_with("@") {
                 trace!("Found an @ annotation in line {line:?}");
                 let line = line.strip_prefix("@").unwrap();
-                let first_space = line.find(" ").unwrap();
-                let head = &line[..first_space];
-                let tail = &line[first_space..];
-                trace!("Head: {head:?} | Tail: {tail:?}");
-                return format!("{head}::{tail}");
+                let first_space = line.find(" ");
+                if let Some(first_space) = first_space {
+                    let head = &line[..first_space];
+                    let tail = &line[first_space..];
+                    trace!("Head: {head:?} | Tail: {tail:?}");
+                    return format!("{head}::{tail}");
+                } else {
+                    return line.to_string();
+                }
             } else {
                 return line.to_string();
             }
