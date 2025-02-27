@@ -1,7 +1,7 @@
 use std::{fmt, str::FromStr};
 
 use anyhow::{anyhow, bail};
-use tracing::{debug, instrument, trace, Instrument};
+use tracing::{debug, instrument, trace, warn, Instrument};
 use tree_sitter::{Node, Parser, Tree, TreeCursor};
 
 #[derive(Debug)]
@@ -210,10 +210,11 @@ impl Class {
             return Ok(None);
         }
         if root_classes.len() > 1 {
-            bail!(
-                "Expected exactly one root class, got {}",
+            warn!(
+                "Expected exactly one root class, got {} and don't know how to handle that",
                 root_classes.len()
-            )
+            );
+            return Ok(None);
         }
         let root = root_classes.get(0).unwrap();
         trace!("Root class is {root:?}");
@@ -224,7 +225,6 @@ impl Class {
         let name = get_string_of_node(&name, sourcecode);
         trace!("Found name: {name:?}");
         classdoc.name = name.to_string();
-
         let root = root
             .child_by_field_name("body")
             .ok_or_else(|| anyhow!("Expected a class to have a body"))?;
@@ -273,7 +273,7 @@ impl Class {
                     let constructor = Constructor::from_node(&thing, sourcecode, comment, level)?;
                     classdoc.constructors.push(constructor);
                 }
-                _ => bail!("Got {}, which is unsupported", thing.grammar_name()),
+                _ => debug!("Got {}, which is unsupported", thing.grammar_name()),
             }
         }
 
