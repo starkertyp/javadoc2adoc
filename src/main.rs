@@ -5,11 +5,12 @@ use std::{
 
 use anyhow::anyhow;
 use classdoc::Class;
+use futures::future::join_all;
 use glob::glob;
 use macro_rules_attribute::apply;
 use smol::{
     fs::{read_to_string, write, DirBuilder},
-    Executor,
+    Executor, Task,
 };
 use smol_macros::main;
 use tracing::{debug, info, trace};
@@ -37,9 +38,10 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
         .next()
         .ok_or_else(|| anyhow!("expected an out dir as the second parameter"))?;
 
+    let mut tasks: Vec<Task<()>> = vec![];
     for entry in glob(&glob_in)? {
         let entry = entry?;
-        debug!("Looking at {entry:?}");
+        info!("Trying to handle file {entry:?}");
         if entry.is_file() {
             trace!("Is a file");
             if let Some(extension) = entry.extension() {
@@ -47,7 +49,7 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
                 if extension == "java" {
                     debug!("Found java file at {entry:?}");
                     let outdir = outdir.clone(); // clone to work around move
-                    ex.spawn(async move {
+                    let task = ex.spawn(async move {
                         let classdoc = doc_from_file(&entry).await.unwrap();
                         if let Some(classdoc) = classdoc {
                             trace!("Got {classdoc:?}");
@@ -69,12 +71,13 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
                         } else {
                             debug!("Skipping {entry:?} as it doesn't contain a class");
                         }
-                    })
-                    .await;
+                    });
+                    tasks.push(task);
                 }
             }
         }
     }
+    join_all(tasks).await;
 
     // ex.spawn(async {
     //     println!("Hello world!");
