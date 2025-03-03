@@ -15,7 +15,9 @@ impl fmt::Display for Field {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let level: usize = self.level.try_into().unwrap();
         let prefix_hashes = vec!["="; level].join("");
+        writeln!(f, "")?;
         writeln!(f, "==={} {}", prefix_hashes, self.name)?;
+        writeln!(f, "")?;
         writeln!(f, "{}", self.comment)
     }
 }
@@ -87,7 +89,9 @@ impl fmt::Display for Method {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let level: usize = self.level.try_into().unwrap();
         let prefix_hashes = vec!["="; level].join("");
+        writeln!(f, "")?;
         writeln!(f, "==={} {}", prefix_hashes, self.name)?;
+        writeln!(f, "")?;
         writeln!(f, "{}", self.comment)
     }
 }
@@ -130,7 +134,12 @@ impl fmt::Display for Constructor {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let level: usize = self.level.try_into().unwrap();
         let prefix_hashes = vec!["="; level].join("");
+
+        writeln!(f, "")?;
+
         writeln!(f, "==={} {}", prefix_hashes, self.name)?;
+        writeln!(f, "")?;
+
         writeln!(f, "{}", self.comment)
     }
 }
@@ -154,28 +163,36 @@ impl fmt::Display for Class {
         write!(f, "{}", self.class_comment)?;
 
         if !self.constructors.is_empty() {
-            writeln!(f, "=={} Konstruktoren", prefix_hashes)?
+            writeln!(f, "")?;
+            writeln!(f, "=={} Konstruktoren", prefix_hashes)?;
+            writeln!(f, "")?
         }
         for constructor in &self.constructors {
             write!(f, "{}", constructor)?;
         }
 
         if !self.fields.is_empty() {
-            writeln!(f, "=={} Felder", prefix_hashes)?
+            writeln!(f, "\n")?;
+            writeln!(f, "=={} Felder", prefix_hashes)?;
+            writeln!(f, "")?
         }
         for field in &self.fields {
             write!(f, "{}", field)?;
         }
 
         if !self.methods.is_empty() {
-            writeln!(f, "=={} Methoden", prefix_hashes)?
+            writeln!(f, "\n")?;
+            writeln!(f, "=={} Methoden", prefix_hashes)?;
+            writeln!(f, "")?
         }
         for method in &self.methods {
             write!(f, "{}", method)?;
         }
 
         if !self.children.is_empty() {
-            writeln!(f, "=={} Subklassen", prefix_hashes)?
+            writeln!(f, "\n")?;
+            writeln!(f, "=={} Subklassen", prefix_hashes)?;
+            writeln!(f, "")?
         }
         for child in &self.children {
             write!(f, "{}", child)?;
@@ -315,7 +332,7 @@ fn get_class_comment<'a>(
 fn get_string_of_node<'a>(node: &Node<'a>, sourcecode: &'a str) -> &'a str {
     let range = node.range();
     trace!("range of node: {range:?}");
-    
+
     (&sourcecode[range.start_byte..range.end_byte]) as _
 }
 
