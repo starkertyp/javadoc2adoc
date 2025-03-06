@@ -1,8 +1,10 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use anyhow::anyhow;
 use tracing::{debug, instrument, trace, warn};
 use tree_sitter::{Node, Parser, Tree, TreeCursor};
+
+use crate::javadoc::{node_to_docable, FileContext, JavaDocable};
 
 #[derive(Debug)]
 struct Field {
@@ -296,6 +298,21 @@ impl Class {
 
         Ok(Some(classdoc))
     }
+}
+
+#[instrument(skip_all)]
+pub fn from_sourcecode(sourcecode: &str) -> anyhow::Result<()> {
+    let tree = parse_string(sourcecode)?;
+    debug!("Getting root node first");
+    let root = tree.root_node();
+    let mut cursor = root.walk();
+    let filecontext = FileContext::from_str(sourcecode)?;
+
+    let children: Vec<Box<dyn JavaDocable>> = root
+        .children(&mut cursor)
+        .filter_map(|node| node_to_docable(node, &filecontext)).collect();
+
+    todo!()
 }
 
 #[instrument(skip_all)]

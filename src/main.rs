@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use classdoc::Class;
+use classdoc::{from_sourcecode, Class};
 use futures::future::join_all;
 use glob::glob;
 use macro_rules_attribute::apply;
@@ -13,14 +13,17 @@ use smol::{
     Executor, Task,
 };
 use smol_macros::main;
-use tracing::{debug, info, trace};
+use tracing::{debug, info, instrument, trace};
 
 mod classdoc;
+mod javadoc;
 
 async fn doc_from_file(path: &PathBuf) -> anyhow::Result<Option<Class>> {
     let content = read_to_string(path).await?;
-    let class = Class::from_sourcecode(&content, 0)?;
-    Ok(class)
+    from_sourcecode(&content)?;
+    Ok(None)
+    // let class = Class::from_sourcecode(&content, 0)?;
+    // Ok(class)
 }
 
 #[apply(main!)]
