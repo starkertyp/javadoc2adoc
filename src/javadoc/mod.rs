@@ -4,14 +4,14 @@ pub mod constructor;
 pub mod field;
 pub mod method;
 
-use std::{fmt::Display, str::FromStr};
+use std::str::FromStr;
 
 use class::Class;
 use comment::BlockComment;
 use constructor::Constructor;
 use field::Field;
 use method::Method;
-use tracing::{debug, dispatcher::get_default, instrument, trace};
+use tracing::{debug, trace};
 use tree_sitter::{Node, Range};
 
 #[derive(Debug)]

@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use anyhow::anyhow;
 use tracing::{debug, instrument, trace, warn};
-use tree_sitter::{Node, Parser, Tree, TreeCursor};
+use tree_sitter::{Parser, Tree};
 
 use crate::javadoc::{node_to_docable, FileContext, JavaDocable, JavaDocableElement};
 
