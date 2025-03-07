@@ -18,12 +18,10 @@ use tracing::{debug, info, instrument, trace};
 mod classdoc;
 mod javadoc;
 
-async fn doc_from_file(path: &PathBuf) -> anyhow::Result<Option<Class>> {
+async fn doc_from_file(path: &PathBuf) -> anyhow::Result<String> {
     let content = read_to_string(path).await?;
-    from_sourcecode(&content)?;
-    Ok(None)
-    // let class = Class::from_sourcecode(&content, 0)?;
-    // Ok(class)
+    let rendered = from_sourcecode(&content)?;
+    Ok(rendered)
 }
 
 #[apply(main!)]
@@ -52,26 +50,22 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
                     let outdir = outdir.clone(); // clone to work around move
                     let task = ex.spawn(async move {
                         let classdoc = doc_from_file(&entry).await.unwrap();
-                        if let Some(classdoc) = classdoc {
-                            trace!("Got {classdoc:?}");
-                            let outdir = Path::new(&outdir);
-                            let filename = entry.file_name().unwrap();
-                            let filename = filename.to_string_lossy().replace(".java", ".adoc");
-                            let outdir = outdir.join(entry.clone());
-                            let outdir = outdir.parent().unwrap();
-                            trace!("Built outdir {outdir:?}");
-                            DirBuilder::new()
-                                .recursive(true)
-                                .create(outdir)
-                                .await
-                                .unwrap();
-                            trace!("Outdir {outdir:?} created");
-                            let outpath = outdir.join(filename);
-                            debug!("Writing to {outpath:?}");
-                            write(outpath, format!("{classdoc}")).await.unwrap()
-                        } else {
-                            debug!("Skipping {entry:?} as it doesn't contain a class");
-                        }
+                        trace!("Got {classdoc:?}");
+                        let outdir = Path::new(&outdir);
+                        let filename = entry.file_name().unwrap();
+                        let filename = filename.to_string_lossy().replace(".java", ".adoc");
+                        let outdir = outdir.join(entry.clone());
+                        let outdir = outdir.parent().unwrap();
+                        trace!("Built outdir {outdir:?}");
+                        DirBuilder::new()
+                            .recursive(true)
+                            .create(outdir)
+                            .await
+                            .unwrap();
+                        trace!("Outdir {outdir:?} created");
+                        let outpath = outdir.join(filename);
+                        debug!("Writing to {outpath:?}");
+                        write(outpath, classdoc).await.unwrap()
                     });
                     tasks.push(task);
                 }
