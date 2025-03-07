@@ -91,7 +91,12 @@ impl<'a> JavaDocable<'a> for Class<'a> {
                 }
             }
         }
+        let fields_headline = format!("{prefix_hashes}= Felder");
+        let methods_headline = format!("{prefix_hashes}= Methoden");
+        let classes_headline = format!("{prefix_hashes}= Klassen");
+        let constructors_headline = format!("{prefix_hashes}= Konstruktoren");
 
+        
         //stringify all of the children with increased nesting levels
         let fields: Vec<String> = fields
             .iter()
@@ -114,7 +119,7 @@ impl<'a> JavaDocable<'a> for Class<'a> {
             .collect();
         let constructors = constructors.join("\n");
 
-        format!("\n\n{headline}\n\n{content}{constructors}{fields}{methods}{classes}")
+        format!("\n\n{headline}\n\n{content}{constructors_headline}\n\n{constructors}{fields_headline}\n\n{fields}{methods_headline}\n\n{methods}{classes_headline}\n\n{classes}")
     }
 
     fn get_comment(&self) -> &'a BlockComment {

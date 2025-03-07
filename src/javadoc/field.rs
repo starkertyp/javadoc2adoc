@@ -54,13 +54,3 @@ impl<'a> JavaDocable<'a> for Field<'a> {
         &self.comment
     }
 }
-
-impl fmt::Display for Field<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let name = self.get_name();
-        writeln!(f, "")?;
-        writeln!(f, "=== {}", name)?;
-        writeln!(f, "")?;
-        writeln!(f, "{}", self.comment)
-    }
-}

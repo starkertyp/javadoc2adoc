@@ -44,7 +44,7 @@ pub trait JavaDocable<'a> {
     fn render(&'a self, level: u8) -> String {
         let prefix_hashes = prefix_hashes(level);
         let name = self.get_name();
-        let headline = format!("{prefix_hashes} {name}");
+        let headline = format!("{prefix_hashes}= {name}");
         let content = self.get_comment();
         let content = format!("{content}");
         format!("\n\n{headline}\n\n{content}")
