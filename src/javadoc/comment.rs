@@ -1,6 +1,6 @@
 use core::fmt;
 
-use tracing::{instrument, trace};
+use tracing::{debug, instrument, trace};
 use tree_sitter::Node;
 
 use super::FileContext;
@@ -38,8 +38,19 @@ pub fn find_block_comment<'a>(
         Some(sibling) => {
             let name = sibling.grammar_name();
             if name == "block_comment" {
-                let comment = BlockComment::new(sibling, context);
-                Some(comment)
+                debug!("Found a sibling block_comment");
+                let sourcecode = &context.0;
+                let start = sibling.range();
+                let start = start.start_byte;
+                let end = start + 2;
+                let start = &sourcecode[start..end];
+                if start == "/**" {
+                    debug!("Is javadoc");
+                    let comment = BlockComment::new(sibling, context);
+                    Some(comment)
+                } else {
+                    None
+                }
             } else {
                 None
             }
