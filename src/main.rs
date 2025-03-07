@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use classdoc::{from_sourcecode, Class};
+use classdoc::{from_sourcecode};
 use futures::future::join_all;
 use glob::glob;
 use macro_rules_attribute::apply;
@@ -13,7 +13,7 @@ use smol::{
     Executor, Task,
 };
 use smol_macros::main;
-use tracing::{debug, info, instrument, trace};
+use tracing::{debug, info, trace};
 
 mod classdoc;
 mod javadoc;

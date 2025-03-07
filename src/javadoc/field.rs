@@ -5,7 +5,7 @@ use tree_sitter::Node;
 
 use crate::javadoc::comment::find_block_comment;
 
-use super::{comment::BlockComment, get_string_of_node, FileContext, JavaDocable};
+use super::{comment::BlockComment, FileContext, JavaDocable};
 
 #[derive(Debug)]
 pub struct Field<'a> {
@@ -45,8 +45,8 @@ impl<'a> JavaDocable<'a> for Field<'a> {
         let declarator = node.child_by_field_name("declarator").unwrap();
         let nodetype = node.child_by_field_name("type").unwrap();
         let name = declarator.child_by_field_name("name").unwrap();
-        let nodetype = get_string_of_node(&nodetype, &ctx.0);
-        let name = get_string_of_node(&name, &ctx.0);
+        let nodetype = ctx.source_for_range(&nodetype.range());
+        let name = ctx.source_for_range(&name.range());
         format!("{nodetype} {name}")
     }
 

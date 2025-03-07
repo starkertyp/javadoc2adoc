@@ -104,11 +104,3 @@ pub fn prefix_hashes(level: u8) -> String {
     let prefix_hashes = vec!["="; level].join("");
     format!("={}", prefix_hashes)
 }
-
-#[instrument(skip_all)]
-pub fn get_string_of_node<'a>(node: &Node<'a>, sourcecode: &'a str) -> &'a str {
-    let range = node.range();
-    trace!("range of node: {range:?}");
-
-    (&sourcecode[range.start_byte..range.end_byte]) as _
-}

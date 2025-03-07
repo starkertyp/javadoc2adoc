@@ -4,7 +4,8 @@ use tree_sitter::Node;
 use crate::javadoc::{constructor::Constructor, field::Field, method::Method, prefix_hashes};
 
 use super::{
-    comment::{find_block_comment, BlockComment}, get_string_of_node, node_to_docable, FileContext, JavaDocable, JavaDocableElement
+    comment::{find_block_comment, BlockComment},
+    node_to_docable, FileContext, JavaDocable, JavaDocableElement,
 };
 
 #[derive(Debug)]
@@ -57,7 +58,7 @@ impl<'a> JavaDocable<'a> for Class<'a> {
         let node = self.get_node();
         let name = node.child_by_field_name("name").unwrap();
         let ctx = self.context;
-        let name = get_string_of_node(&name, &ctx.0);
+        let name = ctx.source_for_range(&name.range());
         name.to_owned()
     }
 
@@ -71,8 +72,7 @@ impl<'a> JavaDocable<'a> for Class<'a> {
         let mut fields: Vec<&Field<'a>> = vec![];
         let mut methods: Vec<&Method<'a>> = vec![];
         let mut classes: Vec<&Class<'a>> = vec![];
-                let mut constructors: Vec<&Constructor<'a>> = vec![];
-
+        let mut constructors: Vec<&Constructor<'a>> = vec![];
 
         // collect and group all children
         for child in &self.children {
@@ -88,7 +88,7 @@ impl<'a> JavaDocable<'a> for Class<'a> {
                 }
                 JavaDocableElement::Constructor(constructor) => {
                     constructors.push(constructor);
-                },
+                }
             }
         }
 

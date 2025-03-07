@@ -3,7 +3,7 @@ use tree_sitter::Node;
 
 use super::{
     comment::{find_block_comment, BlockComment},
-    get_string_of_node, FileContext, JavaDocable,
+    FileContext, JavaDocable,
 };
 
 #[derive(Debug)]
@@ -45,9 +45,10 @@ impl<'a> JavaDocable<'a> for Method<'a> {
         let nodetype = node.child_by_field_name("type").unwrap();
         let name = node.child_by_field_name("name").unwrap();
         let params = node.child_by_field_name("parameters").unwrap();
-        let nodetype = get_string_of_node(&nodetype, &ctx.0);
-        let name = get_string_of_node(&name, &ctx.0);
-        let params = get_string_of_node(&params, &ctx.0);
+        let nodetype = ctx.source_for_range(&nodetype.range());
+        let name = ctx.source_for_range(&name.range());
+        let params = ctx.source_for_range(&params.range());
+
         format!("{nodetype} {name} {params}")
     }
 

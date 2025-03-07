@@ -1,8 +1,6 @@
 use tracing::debug;
 use tree_sitter::Node;
 
-use crate::javadoc::get_string_of_node;
-
 use super::{comment::{find_block_comment, BlockComment}, FileContext, JavaDocable};
 
 #[derive(Debug)]
@@ -44,8 +42,8 @@ impl<'a> JavaDocable<'a> for Constructor<'a> {
         let ctx = self.get_context();
         let name = node.child_by_field_name("name").unwrap();
         let params = node.child_by_field_name("parameters").unwrap();
-        let name = get_string_of_node(&name, &ctx.0);
-        let params = get_string_of_node(&params, &ctx.0);
+        let name = ctx.source_for_range(&name.range());
+        let params = ctx.source_for_range(&params.range());
         format!("{name} {params}")
     }
 }
