@@ -96,7 +96,6 @@ impl<'a> JavaDocable<'a> for Class<'a> {
         let classes_headline = format!("{prefix_hashes}= Klassen");
         let constructors_headline = format!("{prefix_hashes}= Konstruktoren");
 
-        
         //stringify all of the children with increased nesting levels
         let fields: Vec<String> = fields
             .iter()

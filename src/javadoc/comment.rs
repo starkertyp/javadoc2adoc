@@ -29,7 +29,10 @@ impl fmt::Display for BlockComment<'_> {
     }
 }
 
-pub fn find_block_comment<'a>(node: Node<'a>, context: &'a FileContext) -> Option<BlockComment<'a>> {
+pub fn find_block_comment<'a>(
+    node: Node<'a>,
+    context: &'a FileContext,
+) -> Option<BlockComment<'a>> {
     let sibling = node.prev_sibling();
     match sibling {
         Some(sibling) => {

@@ -20,12 +20,15 @@ pub fn from_sourcecode(sourcecode: &str) -> anyhow::Result<String> {
         .collect();
 
     debug!("{children:?}");
-    let result: Vec<String> = children.into_iter().map(|child| match child {
-        JavaDocableElement::Class(child) => child.render(0),
-        JavaDocableElement::Field(child) => child.render(0),
-        JavaDocableElement::Method(child) => child.render(0),
-        JavaDocableElement::Constructor(child) => child.render(0),
-    }).collect();
+    let result: Vec<String> = children
+        .into_iter()
+        .map(|child| match child {
+            JavaDocableElement::Class(child) => child.render(0),
+            JavaDocableElement::Field(child) => child.render(0),
+            JavaDocableElement::Method(child) => child.render(0),
+            JavaDocableElement::Constructor(child) => child.render(0),
+        })
+        .collect();
     let result = result.join("");
 
     Ok(result)

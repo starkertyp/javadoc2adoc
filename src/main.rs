@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use classdoc::{from_sourcecode};
+use classdoc::from_sourcecode;
 use futures::future::join_all;
 use glob::glob;
 use macro_rules_attribute::apply;
