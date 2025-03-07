@@ -42,8 +42,9 @@ pub fn find_block_comment<'a>(
                 let sourcecode = &context.0;
                 let start = sibling.range();
                 let start = start.start_byte;
-                let end = start + 2;
+                let end = start + 3;
                 let start = &sourcecode[start..end];
+                trace!("Comment start: {start}");
                 if start == "/**" {
                     debug!("Is javadoc");
                     let comment = BlockComment::new(sibling, context);

@@ -11,7 +11,7 @@ cargo build --release
 ## How to run
 
 ```bash
-javadoc2adoc '<glob-pattern>' <out-dir>
+javadoc2adoc -i '<glob-pattern>' -o <out-dir>
 ```
 
 Hint: Escape the glob pattern so your shell doesn't expand it.
@@ -19,7 +19,7 @@ Hint: Escape the glob pattern so your shell doesn't expand it.
 Example:
 
 ```bash
-javadoc2adoc './**/*.java' tmp
+javadoc2adoc -i './**/*.java' -o tmp
 ```
 	
 ## What works
@@ -35,7 +35,6 @@ This can handle the [Quarkus Repo](https://github.com/quarkusio/quarkus) without
 ## What doesn't work
 
 - Interfaces (not implemented yet)
-- Localization, currently some output is hardcoded to be german
 
 ## Why would you want this
 

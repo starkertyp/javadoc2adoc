@@ -1,9 +1,8 @@
-use std::{
-    env,
-    path::{Path, PathBuf},
-};
+use clap::Parser;
+use config::Config;
+use rust_i18n::{i18n, set_locale};
+use std::path::{Path, PathBuf};
 
-use anyhow::anyhow;
 use classdoc::from_sourcecode;
 use futures::future::join_all;
 use glob::glob;
@@ -17,6 +16,9 @@ use tracing::{debug, info, trace};
 
 mod classdoc;
 mod javadoc;
+mod config;
+
+i18n!();
 
 async fn doc_from_file(path: &PathBuf) -> anyhow::Result<String> {
     let content = read_to_string(path).await?;
@@ -28,15 +30,16 @@ async fn doc_from_file(path: &PathBuf) -> anyhow::Result<String> {
 async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let mut args = env::args().skip(1);
-    let glob_in = args
-        .next()
-        .ok_or_else(|| anyhow!("expected a glob pattern as the first parameter"))?;
-    debug!("glob pattern: {glob_in:?}");
-    let outdir = args
-        .next()
-        .ok_or_else(|| anyhow!("expected an out dir as the second parameter"))?;
+    let cfg = Config::parse();
 
+    let glob_in = cfg.input;
+    debug!("glob pattern: {glob_in:?}");
+    let outdir = cfg.output;
+    debug!("out dir: {outdir}");
+    let locale = cfg.locale;
+    debug!("locale: {locale}");
+    set_locale(&locale.to_string());
+    
     let mut tasks: Vec<Task<()>> = vec![];
     for entry in glob(&glob_in)? {
         let entry = entry?;

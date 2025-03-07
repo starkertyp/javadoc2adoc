@@ -1,3 +1,4 @@
+use rust_i18n::t;
 use tracing::{debug, instrument};
 use tree_sitter::Node;
 
@@ -91,10 +92,10 @@ impl<'a> JavaDocable<'a> for Class<'a> {
                 }
             }
         }
-        let fields_headline = format!("{prefix_hashes}= Felder");
-        let methods_headline = format!("{prefix_hashes}= Methoden");
-        let classes_headline = format!("{prefix_hashes}= Klassen");
-        let constructors_headline = format!("{prefix_hashes}= Konstruktoren");
+        let fields_headline = t!("field_headline", nesting = prefix_hashes);
+        let methods_headline = t!("method_headline", nesting = prefix_hashes);
+        let classes_headline = t!("class_headline", nesting = prefix_hashes);
+        let constructors_headline = t!("constructor_headline", nesting = prefix_hashes);
 
         //stringify all of the children with increased nesting levels
         let fields: Vec<String> = fields

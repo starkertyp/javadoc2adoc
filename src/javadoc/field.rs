@@ -1,5 +1,3 @@
-use std::fmt;
-
 use tracing::debug;
 use tree_sitter::Node;
 

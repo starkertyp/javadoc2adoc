@@ -1,0 +1,13 @@
+_version: 2
+field_headline:
+  en: '%{nesting}= Fields'
+  de: '%{nesting}= Felder'
+class_headline:
+  en: '%{nesting}= Classes'
+  de: '%{nesting}= Klassen'
+method_headline:
+  en: '%{nesting}= Methods'
+  de: '%{nesting}= Methoden'
+constructor_headline:
+  en: '%{nesting}= Constructors'
+  de: '%{nesting}= Konstruktoren'
