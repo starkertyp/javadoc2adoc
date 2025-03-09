@@ -90,6 +90,7 @@ impl<'a> JavaDocable<'a> for Class<'a> {
                 JavaDocableElement::Constructor(constructor) => {
                     constructors.push(constructor);
                 }
+                JavaDocableElement::Interface(_) => (),
             }
         }
         let fields_headline = t!("field_headline", nesting = prefix_hashes);

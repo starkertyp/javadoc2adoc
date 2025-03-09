@@ -2,6 +2,7 @@ pub mod class;
 pub mod comment;
 pub mod constructor;
 pub mod field;
+pub mod interface;
 pub mod method;
 
 use std::str::FromStr;
@@ -10,6 +11,7 @@ use class::Class;
 use comment::BlockComment;
 use constructor::Constructor;
 use field::Field;
+use interface::Interface;
 use method::Method;
 use tracing::{debug, trace};
 use tree_sitter::{Node, Range};
@@ -57,6 +59,7 @@ pub enum JavaDocableElement<'a> {
     Field(Field<'a>),
     Method(Method<'a>),
     Constructor(Constructor<'a>),
+    Interface(Interface<'a>),
 }
 
 pub fn node_to_docable<'a>(node: Node<'a>, ctx: &'a FileContext) -> Option<JavaDocableElement<'a>> {
@@ -95,6 +98,14 @@ pub fn node_to_docable<'a>(node: Node<'a>, ctx: &'a FileContext) -> Option<JavaD
                 None => None,
             }
         }
+        "interface_declaration" => {
+            debug!("Found a interface declaration");
+            let interface = Interface::new(ctx, node);
+            match interface {
+                Some(interface) => Some(JavaDocableElement::Interface(interface)),
+                None => None,
+            }
+        }
         _ => None,
     }
 }
@@ -103,4 +114,33 @@ pub fn prefix_hashes(level: u8) -> String {
     let level: usize = level.into();
     let prefix_hashes = vec!["="; level].join("");
     format!("={}", prefix_hashes)
+}
+
+#[cfg(test)]
+mod filecontext_tests {
+    use tree_sitter::Point;
+
+    use super::*;
+
+    const INPUT: &str =
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod";
+
+    #[test]
+    fn from_str() {
+        let ctx = FileContext::from_str(INPUT);
+        assert!(ctx.is_ok());
+    }
+
+    #[test]
+    fn source_for_range() {
+        let ctx = FileContext::from_str(INPUT).unwrap();
+        let p = Point::default();
+        let range = Range {
+            start_byte: 2,
+            end_byte: 7,
+            start_point: p,
+            end_point: p,
+        };
+        assert_eq!(ctx.source_for_range(&range), "rem i");
+    }
 }

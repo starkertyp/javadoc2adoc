@@ -3,6 +3,7 @@
 - Fixed output path building when using absolute paths for the input files
 - Remove `<p>` tags from generated text
 - Skip writes to the output file if the generated doc would be empty
+- Support for interfaces
 
 # 0.3.0
 

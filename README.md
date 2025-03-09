@@ -29,12 +29,13 @@ javadoc2adoc -i './**/*.java' -o tmp
 - Methods
 - Fields
 - Nested Classes
+- Interfaces
 
 This can handle the [Quarkus Repo](https://github.com/quarkusio/quarkus) without crashing, which is kind of nice.
 
 ## What doesn't work
 
-- Interfaces (not implemented yet)
+- Most likely a lot of things
 
 ## Why would you want this
 

@@ -19,6 +19,7 @@ mod classdoc;
 mod config;
 mod javadoc;
 mod output;
+mod parser;
 
 i18n!();
 
