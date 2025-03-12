@@ -12,6 +12,5 @@ set -euo"${DEBUGFLAG}" pipefail
 echo "Building x86_64"
 nix-build docker.nix -o result_x86_64
 
-# sounds good, doesn't work
-# echo "Building aarch64"
-# nix-build docker-aarch64.nix -o result_aarch64
+echo "Building aarch64"
+nix-build docker-aarch64.nix -o result_aarch64
