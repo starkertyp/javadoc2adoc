@@ -67,8 +67,12 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
                             .unwrap();
                         trace!("Outdir {outdir:?} created");
                         let outpath = outdir.join(filename);
-                        debug!("Writing to {outpath:?}");
-                        write(outpath, classdoc).await.unwrap()
+                        if classdoc.is_empty() {
+                            info!("Skipping write to {outpath:?} as output file would be empty");
+                        } else {
+                            debug!("Writing to {outpath:?}");
+                            write(outpath, classdoc).await.unwrap()
+                        }
                     });
                     tasks.push(task);
                 }

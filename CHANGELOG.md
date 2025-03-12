@@ -1,7 +1,8 @@
 # Unreleased
 
-- fixed output path building when using absolute paths for the input files
-- remove `<p>` tags from generated text
+- Fixed output path building when using absolute paths for the input files
+- Remove `<p>` tags from generated text
+- Skip writes to the output file if the generated doc would be empty
 
 # 0.3.0
 
