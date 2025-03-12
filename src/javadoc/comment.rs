@@ -66,15 +66,16 @@ fn javadoc_to_adoc(source: &str) -> String {
         .lines()
         .map(|line| {
             let line = line.trim();
+            let line = line.replace("<p>", "");
             if line.starts_with("/**") {
                 trace!("Stripping '/**' from {line:?}");
-                return line.strip_prefix("/**").unwrap().trim_start();
+                return line.strip_prefix("/**").unwrap().trim_start().to_owned();
             } else if line.starts_with("*/") {
                 trace!("Stripping '*/' from {line:?}");
-                return line.strip_prefix("*/").unwrap().trim_start();
+                return line.strip_prefix("*/").unwrap().trim_start().to_owned();
             } else if line.starts_with("*") {
                 trace!("Stripping '*' from {line:?}");
-                return line.strip_prefix("*").unwrap().trim_start();
+                return line.strip_prefix("*").unwrap().trim_start().to_owned();
             } else {
                 return line;
             }
@@ -99,4 +100,16 @@ fn javadoc_to_adoc(source: &str) -> String {
         .collect();
 
     lines.join("\n")
+}
+
+#[cfg(test)]
+mod javadoc_to_adoc_tests {
+    use super::*;
+
+    #[test]
+    fn removes_p_tags() {
+        let input = "* <p> some cool documentation";
+        let result = javadoc_to_adoc(input);
+        assert_eq!(result, "some cool documentation");
+    }
 }

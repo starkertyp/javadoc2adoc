@@ -1,6 +1,7 @@
 # Unreleased
 
 - fixed output path building when using absolute paths for the input files
+- remove `<p>` tags from generated text
 
 # 0.3.0
 
