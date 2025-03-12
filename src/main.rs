@@ -1,7 +1,8 @@
 use clap::Parser;
 use config::Config;
+use output::build_output_path;
 use rust_i18n::{i18n, set_locale};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use classdoc::from_sourcecode;
 use futures::future::join_all;
@@ -15,8 +16,9 @@ use smol_macros::main;
 use tracing::{debug, info, trace};
 
 mod classdoc;
-mod javadoc;
 mod config;
+mod javadoc;
+mod output;
 
 i18n!();
 
@@ -39,7 +41,7 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
     let locale = cfg.locale;
     debug!("locale: {locale}");
     set_locale(&locale.to_string());
-    
+
     let mut tasks: Vec<Task<()>> = vec![];
     for entry in glob(&glob_in)? {
         let entry = entry?;
@@ -54,15 +56,13 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
                     let task = ex.spawn(async move {
                         let classdoc = doc_from_file(&entry).await.unwrap();
                         trace!("Got {classdoc:?}");
-                        let outdir = Path::new(&outdir);
+                        let outdir = build_output_path(&entry, &outdir).unwrap();
                         let filename = entry.file_name().unwrap();
                         let filename = filename.to_string_lossy().replace(".java", ".adoc");
-                        let outdir = outdir.join(entry.clone());
-                        let outdir = outdir.parent().unwrap();
                         trace!("Built outdir {outdir:?}");
                         DirBuilder::new()
                             .recursive(true)
-                            .create(outdir)
+                            .create(outdir.clone())
                             .await
                             .unwrap();
                         trace!("Outdir {outdir:?} created");
@@ -76,14 +76,6 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
         }
     }
     join_all(tasks).await;
-
-    // ex.spawn(async {
-    //     println!("Hello world!");
-    // })
-    // .await;
-
-    // tracing_subscriber::fmt::init();
-    // let classdoc = Class::from_sourcecode(TESTCLASS, 0)?;
 
     Ok(())
 }

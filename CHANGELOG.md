@@ -1,3 +1,7 @@
+# Unreleased
+
+- fixed output path building when using absolute paths for the input files
+
 # 0.3.0
 
 - fixed javadoc comments not being properly recognized, resulting in empty output files
