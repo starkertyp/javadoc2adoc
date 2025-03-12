@@ -3,60 +3,28 @@ use std::path::{Path, PathBuf};
 
 pub fn build_output_path(file: &PathBuf, out: &str) -> anyhow::Result<PathBuf> {
     let outdir = Path::new(out);
-    match (file.is_absolute(), outdir.is_absolute()) {
-        (true, true) => {
-            // joining an absolute path into another path replaces the original completely
-            let file = file.to_string_lossy();
-            let file = &file[1..file.len()];
-            let file = Path::new(file);
-            let outdir = Path::new(out);
-            let outdir = outdir.join(file);
+    if file.is_absolute() {
+        // joining an absolute path into another path replaces the original completely
+        let file = file.to_string_lossy();
+        let file = &file[1..file.len()];
+        let file = Path::new(file);
+        let outdir = Path::new(out);
+        let outdir = outdir.join(file);
 
-            let outdir = outdir
-                .parent()
-                .ok_or_else(|| anyhow!("Failed to get parent"))?;
+        let outdir = outdir
+            .parent()
+            .ok_or_else(|| anyhow!("Failed to get parent"))?;
 
-            let outdir = outdir.to_owned();
-            return Ok(outdir);
-        }
-        (true, false) => {
-            // joining an absolute path into another path replaces the original completely
-            let file = file.to_string_lossy();
-            let file = &file[1..file.len()];
-            let file = Path::new(file);
-            eprintln!("file {file:?}");
-            let outdir = Path::new(out);
-            eprintln!("outdir {outdir:?}");
+        let outdir = outdir.to_owned();
+        return Ok(outdir);
+    } else {
+        let outdir = outdir.join(file.clone());
+        let outdir = outdir
+            .parent()
+            .ok_or_else(|| anyhow!("Failed to get parent"))?;
 
-            let outdir = outdir.join(file);
-            eprintln!("outdir {outdir:?}");
-
-            let outdir = outdir
-                .parent()
-                .ok_or_else(|| anyhow!("Failed to get parent"))?;
-            eprintln!("outdir {outdir:?}");
-
-            let outdir = outdir.to_owned();
-            return Ok(outdir);
-        },
-        (false, true) => {
-            let outdir = outdir.join(file.clone());
-            let outdir = outdir
-                .parent()
-                .ok_or_else(|| anyhow!("Failed to get parent"))?;
-
-            let outdir = outdir.to_owned();
-            return Ok(outdir);
-        }
-        (false, false) => {
-            let outdir = outdir.join(file.clone());
-            let outdir = outdir
-                .parent()
-                .ok_or_else(|| anyhow!("Failed to get parent"))?;
-
-            let outdir = outdir.to_owned();
-            return Ok(outdir);
-        }
+        let outdir = outdir.to_owned();
+        return Ok(outdir);
     }
 }
 
