@@ -1,4 +1,4 @@
-# Unreleased
+# 0.4.0
 
 - Fixed output path building when using absolute paths for the input files
 - Remove `<p>` tags from generated text
