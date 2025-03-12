@@ -22,8 +22,7 @@ pub struct FileContext(String);
 impl FileContext {
     pub fn source_for_range(&self, range: &Range) -> &str {
         let sourcecode = &self.0;
-        let sourcecode = &sourcecode[range.start_byte..range.end_byte];
-        sourcecode
+        (&sourcecode[range.start_byte..range.end_byte]) as _
     }
 }
 
@@ -69,42 +68,27 @@ pub fn node_to_docable<'a>(node: Node<'a>, ctx: &'a FileContext) -> Option<JavaD
         "class_declaration" => {
             debug!("Found a class declaration");
             let class = Class::new(ctx, node);
-            match class {
-                Some(class) => Some(JavaDocableElement::Class(class)),
-                None => None,
-            }
+            class.map(JavaDocableElement::Class)
         }
         "method_declaration" => {
             debug!("Found a method declaration");
             let method = Method::new(ctx, node);
-            match method {
-                Some(method) => Some(JavaDocableElement::Method(method)),
-                None => None,
-            }
+            method.map(JavaDocableElement::Method)
         }
         "field_declaration" => {
             debug!("Found a field declaration");
             let field = Field::new(ctx, node);
-            match field {
-                Some(field) => Some(JavaDocableElement::Field(field)),
-                None => None,
-            }
+            field.map(JavaDocableElement::Field)
         }
         "constructor_declaration" => {
             debug!("Found a constructor declaration");
             let constructor = Constructor::new(ctx, node);
-            match constructor {
-                Some(constructor) => Some(JavaDocableElement::Constructor(constructor)),
-                None => None,
-            }
+            constructor.map(JavaDocableElement::Constructor)
         }
         "interface_declaration" => {
             debug!("Found a interface declaration");
             let interface = Interface::new(ctx, node);
-            match interface {
-                Some(interface) => Some(JavaDocableElement::Interface(interface)),
-                None => None,
-            }
+            interface.map(JavaDocableElement::Interface)
         }
         _ => None,
     }

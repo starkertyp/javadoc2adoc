@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use tracing::{debug, instrument, trace, warn};
+use tracing::{debug, instrument, warn};
 
 use crate::{
     javadoc::{node_to_docable, FileContext, JavaDocable, JavaDocableElement},

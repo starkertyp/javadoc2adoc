@@ -51,7 +51,7 @@ impl<'a> JavaDocable<'a> for Interface<'a> {
     }
 
     fn get_context(&self) -> &'a FileContext {
-        &self.context
+        self.context
     }
 
     fn get_comment(&self) -> &'a BlockComment {
@@ -77,11 +77,8 @@ impl<'a> JavaDocable<'a> for Interface<'a> {
 
         // collect and group all children
         for child in &self.children {
-            match child {
-                JavaDocableElement::Method(method) => {
-                    methods.push(method);
-                }
-                _ => (),
+            if let JavaDocableElement::Method(method) = child {
+                methods.push(method);
             }
         }
         let methods_headline = t!("method_headline", nesting = prefix_hashes);
@@ -168,7 +165,7 @@ interface Animal {
             .filter_map(|node| node_to_docable(node, &filecontext))
             .collect();
         assert_eq!(children.len(), 1);
-        let child = children.get(0).unwrap();
+        let child = children.first().unwrap();
         match child {
             JavaDocableElement::Interface(child) => {
                 assert_eq!(child.get_name(), "Animal");

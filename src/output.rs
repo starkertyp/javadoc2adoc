@@ -16,7 +16,7 @@ pub fn build_output_path(file: &PathBuf, out: &str) -> anyhow::Result<PathBuf> {
             .ok_or_else(|| anyhow!("Failed to get parent"))?;
 
         let outdir = outdir.to_owned();
-        return Ok(outdir);
+        Ok(outdir)
     } else {
         let outdir = outdir.join(file.clone());
         let outdir = outdir
@@ -24,7 +24,7 @@ pub fn build_output_path(file: &PathBuf, out: &str) -> anyhow::Result<PathBuf> {
             .ok_or_else(|| anyhow!("Failed to get parent"))?;
 
         let outdir = outdir.to_owned();
-        return Ok(outdir);
+        Ok(outdir)
     }
 }
 
