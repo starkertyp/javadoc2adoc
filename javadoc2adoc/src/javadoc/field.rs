@@ -1,3 +1,4 @@
+use javadoc2adoc_macros::default_javadocable_fields;
 use tracing::debug;
 use tree_sitter::Node;
 
@@ -5,12 +6,9 @@ use crate::javadoc::comment::find_block_comment;
 
 use super::{comment::BlockComment, FileContext, JavaDocable};
 
+#[default_javadocable_fields]
 #[derive(Debug)]
-pub struct Field<'a> {
-    comment: BlockComment<'a>,
-    node: Node<'a>,
-    context: &'a FileContext,
-}
+pub struct Field<'a> {}
 
 impl<'a> JavaDocable<'a> for Field<'a> {
     fn new(ctx: &'a super::FileContext, node: Node<'a>) -> Option<Self>

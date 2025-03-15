@@ -1,3 +1,4 @@
+use javadoc2adoc_macros::default_javadocable_fields;
 use rust_i18n::t;
 use tracing::{debug, instrument};
 use tree_sitter::Node;
@@ -9,11 +10,9 @@ use super::{
     node_to_docable, FileContext, JavaDocable, JavaDocableElement,
 };
 
+#[default_javadocable_fields]
 #[derive(Debug)]
 pub struct Class<'a> {
-    comment: BlockComment<'a>,
-    node: Node<'a>,
-    context: &'a FileContext,
     children: Vec<JavaDocableElement<'a>>,
 }
 

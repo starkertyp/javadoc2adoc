@@ -4,16 +4,16 @@ use tree_sitter::Node;
 
 use crate::javadoc::{method::Method, prefix_hashes};
 
+use javadoc2adoc_macros::default_javadocable_fields;
+
 use super::{
     comment::{find_block_comment, BlockComment},
     node_to_docable, FileContext, JavaDocable, JavaDocableElement,
 };
 
+#[default_javadocable_fields]
 #[derive(Debug)]
 pub struct Interface<'a> {
-    comment: BlockComment<'a>,
-    node: Node<'a>,
-    context: &'a FileContext,
     children: Vec<JavaDocableElement<'a>>,
 }
 
@@ -65,7 +65,7 @@ impl<'a> JavaDocable<'a> for Interface<'a> {
         let name = ctx.source_for_range(&name.range());
         name.to_owned()
     }
-
+    
     fn render(&'a self, level: u8) -> String {
         let prefix_hashes = prefix_hashes(level);
         let name = self.get_name();

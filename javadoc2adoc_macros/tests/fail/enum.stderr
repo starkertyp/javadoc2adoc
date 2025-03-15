@@ -1,0 +1,5 @@
+error: default_javadocable_fields is only supported for structs
+  --> tests/fail/enum.rs:12:1
+   |
+12 | enum Test<'a> {}
+   | ^^^^
