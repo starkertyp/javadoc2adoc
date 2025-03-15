@@ -1,14 +1,12 @@
-use javadoc2adoc_macros::default_javadocable_fields;
+use javadoc2adoc_macros::{default_javadocable_fields, DefaultJavaDocable};
+use javadoc2adoc_types::DefaultJavaDocable;
 use tracing::debug;
 use tree_sitter::Node;
 
-use super::{
-    comment::{find_block_comment, BlockComment},
-    FileContext, JavaDocable,
-};
+use super::{comment::find_block_comment, FileContext, JavaDocable};
 
 #[default_javadocable_fields]
-#[derive(Debug)]
+#[derive(Debug, DefaultJavaDocable)]
 pub struct Method<'a> {}
 
 impl<'a> JavaDocable<'a> for Method<'a> {
@@ -29,14 +27,6 @@ impl<'a> JavaDocable<'a> for Method<'a> {
         }
     }
 
-    fn get_node(&self) -> Node<'_> {
-        self.node
-    }
-
-    fn get_context(&self) -> &'a FileContext {
-        self.context
-    }
-
     fn get_name(&self) -> String {
         let node = self.get_node();
         let ctx = self.get_context();
@@ -48,9 +38,5 @@ impl<'a> JavaDocable<'a> for Method<'a> {
         let params = ctx.source_for_range(&params.range());
 
         format!("{nodetype} {name} {params}")
-    }
-
-    fn get_comment(&self) -> &'a BlockComment {
-        &self.comment
     }
 }

@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use std::path::{Path, PathBuf};
 
-pub fn build_output_path(file: &PathBuf, out: &str) -> anyhow::Result<PathBuf> {
+pub fn build_output_path(file: &Path, out: &str) -> anyhow::Result<PathBuf> {
     let outdir = Path::new(out);
     if file.is_absolute() {
         // joining an absolute path into another path replaces the original completely
@@ -18,7 +18,7 @@ pub fn build_output_path(file: &PathBuf, out: &str) -> anyhow::Result<PathBuf> {
         let outdir = outdir.to_owned();
         Ok(outdir)
     } else {
-        let outdir = outdir.join(file.clone());
+        let outdir = outdir.join(file.to_path_buf());
         let outdir = outdir
             .parent()
             .ok_or_else(|| anyhow!("Failed to get parent"))?;

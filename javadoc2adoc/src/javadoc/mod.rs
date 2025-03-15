@@ -5,42 +5,19 @@ pub mod field;
 pub mod interface;
 pub mod method;
 
-use std::str::FromStr;
-
 use class::Class;
-use comment::BlockComment;
 use constructor::Constructor;
 use field::Field;
 use interface::Interface;
+use javadoc2adoc_types::FileContext;
 use method::Method;
 use tracing::{debug, trace};
-use tree_sitter::{Node, Range};
+use tree_sitter::Node;
 
-#[derive(Debug)]
-pub struct FileContext(String);
-
-impl FileContext {
-    pub fn source_for_range(&self, range: &Range) -> &str {
-        let sourcecode = &self.0;
-        (&sourcecode[range.start_byte..range.end_byte]) as _
-    }
-}
-
-impl FromStr for FileContext {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(s.to_string()))
-    }
-}
-
-pub trait JavaDocable<'a> {
+pub trait JavaDocable<'a>: javadoc2adoc_types::DefaultJavaDocable<'a> {
     fn new(ctx: &'a FileContext, node: Node<'a>) -> Option<Self>
     where
         Self: Sized;
-    fn get_node(&self) -> Node<'_>;
-    fn get_context(&self) -> &'a FileContext;
-    fn get_comment(&self) -> &'a BlockComment;
     fn get_name(&self) -> String;
     fn render(&'a self, level: u8) -> String {
         let prefix_hashes = prefix_hashes(level);
@@ -102,7 +79,10 @@ pub fn prefix_hashes(level: u8) -> String {
 
 #[cfg(test)]
 mod filecontext_tests {
-    use tree_sitter::Point;
+    use std::str::FromStr;
+
+    use javadoc2adoc_types::FileContext;
+    use tree_sitter::{Point, Range};
 
     use super::*;
 

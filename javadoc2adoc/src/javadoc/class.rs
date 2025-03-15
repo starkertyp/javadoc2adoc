@@ -1,4 +1,5 @@
-use javadoc2adoc_macros::default_javadocable_fields;
+use javadoc2adoc_macros::{default_javadocable_fields, DefaultJavaDocable};
+use javadoc2adoc_types::DefaultJavaDocable;
 use rust_i18n::t;
 use tracing::{debug, instrument};
 use tree_sitter::Node;
@@ -6,12 +7,11 @@ use tree_sitter::Node;
 use crate::javadoc::{constructor::Constructor, field::Field, method::Method, prefix_hashes};
 
 use super::{
-    comment::{find_block_comment, BlockComment},
-    node_to_docable, FileContext, JavaDocable, JavaDocableElement,
+    comment::find_block_comment, node_to_docable, FileContext, JavaDocable, JavaDocableElement,
 };
 
 #[default_javadocable_fields]
-#[derive(Debug)]
+#[derive(Debug, DefaultJavaDocable)]
 pub struct Class<'a> {
     children: Vec<JavaDocableElement<'a>>,
 }
@@ -45,15 +45,6 @@ impl<'a> JavaDocable<'a> for Class<'a> {
             None
         }
     }
-
-    fn get_node(&self) -> Node<'_> {
-        self.node
-    }
-
-    fn get_context(&self) -> &'a FileContext {
-        self.context
-    }
-
     fn get_name(&self) -> String {
         let node = self.get_node();
         let name = node.child_by_field_name("name").unwrap();
@@ -120,9 +111,5 @@ impl<'a> JavaDocable<'a> for Class<'a> {
         let constructors = constructors.join("\n");
 
         format!("\n\n{headline}\n\n{content}{constructors_headline}\n\n{constructors}{fields_headline}\n\n{fields}{methods_headline}\n\n{methods}{classes_headline}\n\n{classes}")
-    }
-
-    fn get_comment(&self) -> &'a BlockComment {
-        &self.comment
     }
 }

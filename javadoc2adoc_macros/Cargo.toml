@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+javadoc2adoc_types = { version = "0.1.0", path = "../javadoc2adoc_types" }
 quote = "1.0.40"
 syn = "2.0.100"
 
@@ -11,4 +12,5 @@ syn = "2.0.100"
 proc-macro = true
 
 [dev-dependencies]
+tree-sitter = "0.25.3"
 trybuild = "1.0.104"

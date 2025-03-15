@@ -1,9 +1,10 @@
 use std::str::FromStr;
 
+use javadoc2adoc_types::FileContext;
 use tracing::{debug, instrument, warn};
 
 use crate::{
-    javadoc::{node_to_docable, FileContext, JavaDocable, JavaDocableElement},
+    javadoc::{node_to_docable, JavaDocable, JavaDocableElement},
     parser::parse_string,
 };
 

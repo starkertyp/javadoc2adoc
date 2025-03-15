@@ -599,6 +599,7 @@ dependencies = [
  "futures",
  "glob",
  "javadoc2adoc_macros",
+ "javadoc2adoc_types",
  "macro_rules_attribute",
  "rust-i18n",
  "smol",
@@ -613,9 +614,20 @@ dependencies = [
 name = "javadoc2adoc_macros"
 version = "0.1.0"
 dependencies = [
+ "javadoc2adoc_types",
  "quote",
  "syn",
+ "tree-sitter",
  "trybuild",
+]
+
+[[package]]
+name = "javadoc2adoc_types"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "tracing",
+ "tree-sitter",
 ]
 
 [[package]]

@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["javadoc2adoc", "javadoc2adoc_macros"]
+members = ["javadoc2adoc", "javadoc2adoc_macros", "javadoc2adoc_types"]

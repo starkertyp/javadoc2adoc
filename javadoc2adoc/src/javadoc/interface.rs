@@ -1,18 +1,18 @@
+use javadoc2adoc_types::DefaultJavaDocable;
 use rust_i18n::t;
 use tracing::debug;
 use tree_sitter::Node;
 
 use crate::javadoc::{method::Method, prefix_hashes};
 
-use javadoc2adoc_macros::default_javadocable_fields;
+use javadoc2adoc_macros::{default_javadocable_fields, DefaultJavaDocable};
 
 use super::{
-    comment::{find_block_comment, BlockComment},
-    node_to_docable, FileContext, JavaDocable, JavaDocableElement,
+    comment::find_block_comment, node_to_docable, FileContext, JavaDocable, JavaDocableElement,
 };
 
 #[default_javadocable_fields]
-#[derive(Debug)]
+#[derive(Debug, DefaultJavaDocable)]
 pub struct Interface<'a> {
     children: Vec<JavaDocableElement<'a>>,
 }
@@ -46,18 +46,6 @@ impl<'a> JavaDocable<'a> for Interface<'a> {
         }
     }
 
-    fn get_node(&self) -> Node<'_> {
-        self.node
-    }
-
-    fn get_context(&self) -> &'a FileContext {
-        self.context
-    }
-
-    fn get_comment(&self) -> &'a BlockComment {
-        &self.comment
-    }
-
     fn get_name(&self) -> String {
         let node = self.get_node();
         let name = node.child_by_field_name("name").unwrap();
@@ -65,7 +53,7 @@ impl<'a> JavaDocable<'a> for Interface<'a> {
         let name = ctx.source_for_range(&name.range());
         name.to_owned()
     }
-    
+
     fn render(&'a self, level: u8) -> String {
         let prefix_hashes = prefix_hashes(level);
         let name = self.get_name();

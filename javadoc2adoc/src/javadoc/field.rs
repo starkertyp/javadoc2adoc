@@ -1,13 +1,14 @@
-use javadoc2adoc_macros::default_javadocable_fields;
+use javadoc2adoc_macros::{default_javadocable_fields, DefaultJavaDocable};
+use javadoc2adoc_types::DefaultJavaDocable;
 use tracing::debug;
 use tree_sitter::Node;
 
 use crate::javadoc::comment::find_block_comment;
 
-use super::{comment::BlockComment, FileContext, JavaDocable};
+use super::JavaDocable;
 
 #[default_javadocable_fields]
-#[derive(Debug)]
+#[derive(Debug, DefaultJavaDocable)]
 pub struct Field<'a> {}
 
 impl<'a> JavaDocable<'a> for Field<'a> {
@@ -27,13 +28,6 @@ impl<'a> JavaDocable<'a> for Field<'a> {
             None
         }
     }
-    fn get_node(&self) -> tree_sitter::Node<'_> {
-        self.node
-    }
-
-    fn get_context(&self) -> &'a super::FileContext {
-        self.context
-    }
 
     fn get_name(&self) -> String {
         let node = self.get_node();
@@ -44,9 +38,5 @@ impl<'a> JavaDocable<'a> for Field<'a> {
         let nodetype = ctx.source_for_range(&nodetype.range());
         let name = ctx.source_for_range(&name.range());
         format!("{nodetype} {name}")
-    }
-
-    fn get_comment(&self) -> &'a BlockComment {
-        &self.comment
     }
 }

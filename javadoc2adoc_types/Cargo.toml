@@ -1,0 +1,9 @@
+[package]
+name = "javadoc2adoc_types"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.97"
+tracing = "0.1.41"
+tree-sitter = "0.25.3"
