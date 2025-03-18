@@ -5,6 +5,7 @@ use rust_i18n::{i18n, set_locale};
 use std::path::PathBuf;
 
 use classdoc::from_sourcecode;
+use futures::future::join_all;
 use glob::glob;
 use macro_rules_attribute::apply;
 use smol::{
@@ -13,7 +14,6 @@ use smol::{
 };
 use smol_macros::main;
 use tracing::{debug, info, trace};
-use futures_concurrency::prelude::*;
 
 mod classdoc;
 mod config;
@@ -80,7 +80,7 @@ async fn main(ex: &Executor<'_>) -> anyhow::Result<()> {
             }
         }
     }
-    let _: Vec<_> = tasks.into_co_stream().collect().await;
+    join_all(tasks).await;
 
     Ok(())
 }
