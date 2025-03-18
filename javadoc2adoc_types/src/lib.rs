@@ -1,5 +1,6 @@
 use std::{fmt, str::FromStr};
 
+use thiserror::Error;
 use tracing::{instrument, trace};
 use tree_sitter::{Node, Range};
 
@@ -7,6 +8,14 @@ pub trait DefaultJavaDocable<'a> {
     fn get_node(&self) -> Node<'_>;
     fn get_context(&self) -> &'a FileContext;
     fn get_comment(&self) -> &'a BlockComment;
+}
+
+#[derive(Error,Debug)]
+pub enum FileContextConversionError {
+    #[error("Failed to turn {s:?} into a FileContext")]
+    FromStr {
+        s: String
+    }
 }
 
 #[derive(Debug)]
@@ -23,7 +32,7 @@ impl FileContext {
 }
 
 impl FromStr for FileContext {
-    type Err = anyhow::Error;
+    type Err = FileContextConversionError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(s.to_string()))
